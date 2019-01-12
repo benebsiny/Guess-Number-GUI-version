@@ -12,7 +12,7 @@
 
 ## 介面
 
-![](https://imgur.com/a/gcyiJis)
+![](https://i.imgur.com/Tn1Khf6.png)
 
 ## 版本資訊
 
