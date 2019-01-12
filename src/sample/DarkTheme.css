@@ -1,0 +1,112 @@
+.background {
+    -fx-background-color : #252526;
+}
+
+/***********************MENU***********************/
+.context-menu {
+    -fx-background-color : derive(#252526 ,10%);
+    -fx-border-color: aliceblue;
+    -fx-border-width: 0 0 0.5;
+    -fx-font-size : 14px ;
+}
+
+. menu .label{
+    -fx-text-fill: white;
+    -fx-opacity : 0.9 ;
+}
+
+. menu:hover,
+. menu-item:hover{
+    -fx-background-color : derive(#252526 ,50%);
+}
+
+. menu:pressed,
+. menu-item:pressed{
+    -fx-background-color : derive(#252526 ,30%);
+}
+
+/***********************BUTTON***********************/
+. button {
+    -fx-padding:2 12 2 12;
+    -fx-border-color: #e2e2e2;
+    -fx-border-width:2;
+    -fx-background-color: #252526;
+    -fx-font-family:"Microsoft JhengHei UI";
+    -fx-font-size:12pt;
+    -fx-text-fill:#d8d8d8;
+}
+
+. button:hover {
+    -fx-background-color:#3a3a3a ;
+}
+
+. button:focused{
+    -fx-border-color : #f4f4f4 ;
+    -fx-effect: innershadow(two-pass-box, #828282, 20, 0, 0, 0);
+}
+
+. button:pressed{
+    -fx-background-color : #ffffff ;
+    -fx-text-fill : #252526 ;
+}
+
+/***********************TEXT FIELD***********************/
+. text-field {
+    -fx-border-color: #e2e2e2;
+    -fx-border-width: 2;
+    -fx-background-color: derive(#252526 ,5%);
+    -fx-text-fill: #d8d8d8;
+    -fx-font-size: 14px;
+    -fx-padding: 2 0;
+}
+
+/***********************TABLE VIEW***********************/
+. table-view{
+    -fx-background-color: derive(#252526 ,20%);
+    -fx-focus-traversable: false;
+}
+. table-view .column-header{
+    -fx-background-color: derive(#252526 ,20%);
+}
+. table-view .label{
+    -fx-text-fill: #d8d8d8;
+    -fx-font-weight: bold;
+    -fx-opacity : 0.9 ;
+}
+. table-column{
+    -fx-background-color: derive(#252526 ,20%);
+    -fx-text-fill: #d8d8d8;
+    -fx-alignment: center;
+}
+
+/***********************ALERT***********************/
+.alert{
+    -fx-background-color: #252526;
+}
+.alert > *.header-panel {
+    -fx-background-color: #252526;
+}
+.alert > *.header-panel *.label {
+    -fx-text-fill: #d8d8d8;
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+}
+
+.alert > *.label.content{
+    -fx-text-fill: #d8d8d8;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/*************WEB VIEW*************/
+. web-view{
+    -fx-background-color: derive(#252526 ,20%);
+    -fx-text-fill: #d8d8d8;
+}
+
+/**************ABOUT LABEL**************/
+.about .label{
+    -fx-text-fill: #d8d8d8;
+    -fx-font-size: 14px;
+}
