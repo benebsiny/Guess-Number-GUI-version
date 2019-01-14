@@ -1,6 +1,9 @@
 package sample;
 
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -12,8 +15,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.awt.*;
 import java.io.IOException;
@@ -27,9 +33,12 @@ public class Controller {
     @FXML
     public TextField input;
     public Button btnEnter;
+    public Button btnNewGame;
+    public Button btnOpenMenu;
     public TableView<Record> table;
     public Label correctAnswerLabel;
-    public Button btnNewGame;
+    public AnchorPane menuBar;
+    public ListView<String> menuItems;
 
     private int guessCount = 0;
     private String answer;
@@ -42,7 +51,6 @@ public class Controller {
     public void initialize(){
 
         guessCount = 0;
-
         answer = makeAnswer();
 
         inputColumn.setSortable(false);
@@ -56,17 +64,22 @@ public class Controller {
         btnNewGame.setVisible(false);
 
         correctAnswerLabel.setVisible(false);
+
+        ObservableList<String> menuList = FXCollections.observableArrayList("新遊戲","更換樣式","玩法","關於","離開");
+        menuItems.setItems(menuList);
     }
 
 
-    /*****ENTER NUMBERS*****/
+    /*****ENTER ACTIONS*****/
     public void btnEntered(ActionEvent actionEvent) {
+        menuSlide(true);
         guessNumber();
         input.clear();
     }
 
-    public void txtEntered(KeyEvent keyEvent) {
+    public void keyEntered(KeyEvent keyEvent) {
         if(keyEvent.getCode() == KeyCode.ENTER && !gameEnded){
+            menuSlide(true);
             guessNumber();
             input.clear();
         }
@@ -120,7 +133,7 @@ public class Controller {
 
             //Correct Answer
             if (a == 4){
-                correctAnswer();
+                youWin();
             }
             else if(guessCount++ == 6){
                 youLose();
@@ -132,10 +145,14 @@ public class Controller {
     }
 
 
-    /*****Correct Answer & Game Ended*****/
-    private void correctAnswer(){
+    /*****GAME ENDED*****/
+
+    /**WIN**/
+    private void youWin(){
         btnEnter.setVisible(false);
         btnNewGame.setVisible(true);
+
+        btnNewGame.requestFocus();
 
         correctAnswerLabel.setVisible(true);
 
@@ -143,29 +160,7 @@ public class Controller {
         input.setDisable(true);
     }
 
-
-    /*****NEW GAME*****/
-    public void btnNewGame(ActionEvent actionEvent) {
-        newGame();
-    }
-    public void keyNewGame(KeyEvent keyEvent) {
-        if(keyEvent.getCode()==KeyCode.ENTER && gameEnded){
-            newGame();
-        }
-    }
-
-    private void newGame(){
-        table.getItems().clear(); //Remove all data
-        table.getColumns().clear(); //Remove 2 columns
-
-        gameEnded = false;
-        input.setDisable(false); //Let text-field can type again
-        input.requestFocus(); //Focus on text-field
-
-        initialize();
-    }
-
-    /*****LOSE*****/
+    /**LOSE**/
     private void youLose() {
         Alert alert = showDialog(Alert.AlertType.INFORMATION,"您已經輸了","您的輸入超過7次，您已經輸了\n" +
                 "正確答案是"+answer);
@@ -174,63 +169,130 @@ public class Controller {
         btnEnter.setVisible(false);
         btnNewGame.setVisible(true);
 
+        btnNewGame.requestFocus();
+
         gameEnded = true; //this one is for enter key disabled
         input.setDisable(true);
     }
 
-    /*****MENU*****/
-    public void closeAction(ActionEvent actionEvent) {
-        Alert alert = showDialog(Alert.AlertType.CONFIRMATION,"關閉程式","確定要關閉遊戲?");
-
-        Optional<ButtonType> result = alert.showAndWait();
-
-        if(result.get() == ButtonType.OK){ //ok button is pressed
-            Platform.exit();
-        }
-        else if(result.get() == ButtonType.CANCEL){
-            actionEvent.consume();
+    /*****NEW GAME*****/
+    public void btnNewGame(ActionEvent actionEvent) {
+        menuSlide(true);
+        newGame();
+    }
+    public void keyNewGame(KeyEvent keyEvent) {
+        if(keyEvent.getCode()==KeyCode.ENTER && gameEnded){
+            menuSlide(true);
+            newGame();
         }
     }
 
-    public void changeStyleAction(ActionEvent actionEvent) {
-        Alert alert = showDialog(Alert.AlertType.INFORMATION,"Sorry!","更換樣式尚未開放");
-        alert.showAndWait();
+    private void newGame(){
+        table.getItems().clear(); //Remove all data
+
+        gameEnded = false;
+
+        input.setDisable(false); //Let text-field can type again
+        input.requestFocus(); //Focus on text-field
+
+        guessCount = 0;
+        answer = makeAnswer();
+
+        btnEnter.setVisible(true);
+        btnNewGame.setVisible(false);
+
+        correctAnswerLabel.setVisible(false);
     }
 
-    public void helpAction(ActionEvent actionEvent) {
-        Alert alert = showDialog(Alert.AlertType.INFORMATION,"玩法","程式會亂數產生4個不重複的數字(1~9)，" +
-                "使用者請輸入一組數字，程式會根據這個數字給出幾A幾B，" +
-                "其中A前面的數字表示位置正確的數的個數，而B前的數字表示數字正確而位置不對的數的個數。\n" +
-                "當輸入次數超過7次時，則代表您輸了。");
-        alert.showAndWait();
+
+    /*****SLIDE MENU BAR EFFECT*****/
+    public void menuSlideOutAction(ActionEvent actionEvent){
+        menuSlide(false);
     }
 
-    public void aboutAction(ActionEvent actionEvent) {
-        FlowPane flowPane = new FlowPane();
-        flowPane.getStyleClass().add("about");
+    void menuSlide(boolean forClose){
+        TranslateTransition openMenu = new TranslateTransition(new Duration(200), menuBar);
+        openMenu.setToX(0);
+        TranslateTransition closeMenu = new TranslateTransition(new Duration(200), menuBar);
 
-        Label author = new Label("Author  : Beneb Siny (Github : ");
-        Hyperlink link = new Hyperlink("https://github.com/benebsiny");
-        link.setOnAction(event -> {
-            if(Desktop.isDesktopSupported()){
-                try {
-                    Desktop.getDesktop().browse(new URI("https://github.com/benebsiny"));
-                } catch (IOException | URISyntaxException e1) {
-                    e1.printStackTrace();
+        if(menuBar.getTranslateX()!=0 && !forClose){
+            openMenu.play();
+            menuBar.requestFocus();
+        }
+        else{
+            closeMenu.setToX(-(menuBar.getWidth()));
+            closeMenu.play();
+        }
+    }
+
+    /***********MENU BAR***********/
+    public void menuItemClicked(MouseEvent mouseEvent) {
+        if(menuItems.getSelectionModel().getSelectedItems().equals(FXCollections.observableArrayList("新遊戲"))){
+            newGame();
+            menuSlide(false);
+        }
+
+        /***STYLE***/
+        else if(menuItems.getSelectionModel().getSelectedItems().equals(FXCollections.observableArrayList("更換樣式"))){
+            Alert alert = showDialog(Alert.AlertType.INFORMATION,"Sorry!","更換樣式尚未開放");
+            alert.showAndWait();
+        }
+
+        /***HELP***/
+        else if(menuItems.getSelectionModel().getSelectedItems().equals(FXCollections.observableArrayList("玩法"))){
+
+            Alert alert = showDialog(Alert.AlertType.INFORMATION,"玩法","程式會亂數產生4個不重複的數字(1~9)，" +
+                    "使用者請輸入一組數字，程式會根據這個數字給出幾A幾B，" +
+                    "其中A前面的數字表示位置正確的數的個數，而B前的數字表示數字正確而位置不對的數的個數。\n" +
+                    "當輸入次數超過7次時，則代表您輸了。");
+            alert.showAndWait();
+        }
+
+        /***ABOUT***/
+        else if(menuItems.getSelectionModel().getSelectedItems().equals(FXCollections.observableArrayList("關於"))){
+
+            FlowPane flowPane = new FlowPane();
+            flowPane.getStyleClass().add("about");
+
+            Label author = new Label("Author  : Beneb Siny (Github : ");
+            Hyperlink link = new Hyperlink("https://github.com/benebsiny");
+            link.setOnAction(event -> {
+                if(Desktop.isDesktopSupported()){
+                    try {
+                        Desktop.getDesktop().browse(new URI("https://github.com/benebsiny"));
+                    } catch (IOException | URISyntaxException e1) {
+                        e1.printStackTrace();
+                    }
                 }
+            });
+
+            Label author1 = new Label(" )   ");
+            Label label = new Label("Version : 1.1.0\n\nCopyright © 2019 Beneb Siny. All rights reserved");
+
+            flowPane.getChildren().addAll(author,link,author1,label);
+
+            Alert alert = showDialog(Alert.AlertType.NONE,"關於","");
+            alert.setHeaderText("猜數字遊戲");
+            alert.getDialogPane().contentProperty().set(flowPane);
+            alert.showAndWait();
+        }
+
+        /***EXIT***/
+        else if(menuItems.getSelectionModel().getSelectedItems().equals(FXCollections.observableArrayList("離開"))){
+            Alert alert = showDialog(Alert.AlertType.CONFIRMATION,"關閉程式","確定要關閉遊戲?");
+
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if(result.get() == ButtonType.OK){ //ok button is pressed
+                Platform.exit();
             }
-        });
-
-        Label author1 = new Label(" )   ");
-        Label label = new Label("Version : 1.0.0\n\nCopyright © 2019 Beneb Siny. All rights reserved");
-
-        flowPane.getChildren().addAll(author,link,author1,label);
-
-        Alert alert = showDialog(Alert.AlertType.NONE,"關於","");
-        alert.setHeaderText("猜數字遊戲");
-        alert.getDialogPane().contentProperty().set(flowPane);
-        alert.showAndWait();
+        }
     }
+
+    public void focusOnMainPane(MouseEvent mouseEvent) {
+        menuSlide(true);
+    }
+
 
     /*****EXCEPTION*****/
     private void wrongInputDialog(){

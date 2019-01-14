@@ -12,9 +12,13 @@
 
 ## 介面
 
-![](https://i.imgur.com/Tn1Khf6.png)
+![](https://i.imgur.com/AZOIaSn.png)
 
 ## 版本資訊
+
+* ver1.1.0
+    1. 新增滑動選單
+    2. 使用JFoenix Button
 
 * ver1.0.0
     1. 可以玩猜數字遊戲
