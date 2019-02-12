@@ -1,31 +1,34 @@
-# 猜數字遊戲
+# Guess Number Game
 
-## 簡介
-這是一個可以玩猜數字遊戲的程式，猜數字遊戲就是
+## Introduce
+This program provide the game that can play guess number game, which is
 
-    程式會亂數產生4個不重複的數字(1~9)
-    使用者請輸入一組數字，程式會根據這個數字給出幾A幾B
-    其中A前面的數字表示位置正確的數的個數，而B前的數字表示數字正確而位置不對的數的個數
-    當結果為4A時，則代表您贏了
+    Promgram will randomly generate four numbers(1~9) non-repetitively.
+    Users enter a set of numbers, program will show xAxB by the entered number.
+    Among them, the number before A means the count of the correct number where at right position, while B's means the count of the correct number but wrong position.
+    When result is 4A, you win.
+    
+The default setting of this program is that game over while entering numbers over 7 times.
 
-本程式預設當輸入次數超過7次時，則遊戲結束。
-
-## 介面
+## Interface
 
 ![](https://i.imgur.com/AZOIaSn.png)
 
-## 版本資訊
+## Download
+You can download [GuessNumber-ver1.1.0](https://github.com/benebsiny/guess-number-GUI-version/releases/download/v1.1.0/GuessNumber-v1.1.0.zip) here.
+
+## Version Information
 
 * ver1.1.0
-    1. 新增滑動選單
-    2. 使用JFoenix Button
+    1. Add slide menu
+    2. Use JFoenix Button
 
 * ver1.0.0
-    1. 可以玩猜數字遊戲
-    2. 輸入次數最多7次
-    3. 結果可以顯示在左邊表格中
+    1. Play guess number game
+    2. Enter 7 times at most
+    3. The result can reveal at the left table
 
-## 版權聲明
-猜數字遊戲 版權所有 © 2019 Beneb Siny
+## Copyright Notice
+Guess Game Number © 2019 Beneb Siny
 
-本程式是自由軟體，您可以遵照自由軟體基金會 ( Free Software Foundation ) 出版的 GNU 通用公共許可證條款 ( GNU General Public License ) 第三版來修改和重新發佈這一程式，或者自由選擇使用任何更新的版本。
+This program is free free software.
