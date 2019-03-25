@@ -132,7 +132,6 @@ public class Controller {
                 }
             }
         }
-        System.out.println(ran);
         return ran.toString();
     }
 
