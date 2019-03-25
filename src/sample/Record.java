@@ -1,6 +1,8 @@
 package sample;
 
-public class Record {
+import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+
+public class Record extends RecursiveTreeObject<Record> {
 
     private String input;
     private String result;

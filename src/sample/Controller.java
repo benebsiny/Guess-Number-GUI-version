@@ -1,5 +1,7 @@
 package sample;
 
+import com.jfoenix.controls.*;
+import com.jfoenix.validation.RegexValidator;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -8,9 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -18,6 +18,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -25,20 +29,19 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Optional;
 
 
 public class Controller {
 
     @FXML
-    public TextField input;
-    public Button btnEnter;
-    public Button btnNewGame;
-    public Button btnOpenMenu;
-    public TableView<Record> table;
+    public JFXTextField input;
+    public JFXButton btnEnter;
+    public JFXButton btnNewGame;
     public Label correctAnswerLabel;
     public AnchorPane menuBar;
-    public ListView<String> menuItems;
+    public JFXListView<String> menuItems;
+    public TableView<Record> table;
+    public StackPane dialogPane;
 
     private int guessCount = 0;
     private String answer;
@@ -48,11 +51,21 @@ public class Controller {
     private TableColumn resultColumn = new TableColumn("結果");
 
     @FXML
-    public void initialize(){
-
+    public void initialize() {
+        //Games
         guessCount = 0;
         answer = makeAnswer();
 
+        //Button & Label
+        btnEnter.setVisible(true);
+        btnNewGame.setVisible(false);
+        correctAnswerLabel.setVisible(false);
+
+        //Slide Menu Table
+        ObservableList<String> menuList = FXCollections.observableArrayList("新遊戲", "更換樣式", "玩法", "關於", "離開");
+        menuItems.setItems(menuList);
+
+        //Result Table
         inputColumn.setSortable(false);
         resultColumn.setSortable(false);
 
@@ -60,13 +73,39 @@ public class Controller {
         resultColumn.setCellValueFactory(new PropertyValueFactory<>("result")); //Fetch "result" type from Record class
         table.getColumns().addAll(inputColumn, resultColumn);
 
-        btnEnter.setVisible(true);
-        btnNewGame.setVisible(false);
+        /********JFoenix********/
+        //TextField
 
-        correctAnswerLabel.setVisible(false);
+        Platform.runLater(() -> input.requestFocus());
 
-        ObservableList<String> menuList = FXCollections.observableArrayList("新遊戲","更換樣式","玩法","關於","離開");
-        menuItems.setItems(menuList);
+        RegexValidator validator = new RegexValidator();
+        validator.setRegexPattern("^(?:([\\d])(?!.*\\1)){4}$");
+
+        input.setOnKeyPressed(event -> {
+            if (event.getCode().equals(KeyCode.ENTER)) {
+                isWrongInput(validator);
+            } else { //Press any key to let validator's text disappear
+                input.getValidators().remove(validator);
+                input.validate();
+            }
+        });
+
+        btnEnter.setOnAction(event -> {
+            isWrongInput(validator);
+        });
+
+    }
+
+    private void isWrongInput(RegexValidator validator) {
+        input.getValidators().add(validator);
+        input.validate();
+
+        validator.setMessage("請輸入四位不重複的數字");
+
+        if (input.getText().matches("^(?:([\\d])(?!.*\\1)){4}$")) {
+            guessNumber();
+            input.clear();
+        }
     }
 
 
@@ -77,78 +116,63 @@ public class Controller {
         input.clear();
     }
 
-    public void keyEntered(KeyEvent keyEvent) {
-        if(keyEvent.getCode() == KeyCode.ENTER && !gameEnded){
-            menuSlide(true);
-            guessNumber();
-            input.clear();
-        }
-    }
-
-
     /*****INITIALIZE ANSWER*****/
-    private String makeAnswer(){
+    private String makeAnswer() {
         StringBuilder ran = new StringBuilder("    ");
-        for(int i=0; i<4; i++){
+        for (int i = 0; i < 4; i++) {
 
             //Set every char of answer
-            ran.setCharAt(i, (char)(Math.random()*9+49));
+            ran.setCharAt(i, (char) (Math.random() * 10 + 48));
 
             //Check if repeat
-            for(int j=0; j<i; j++){
-                if(ran.charAt(i) == ran.charAt(j)){
+            for (int j = 0; j < i; j++) {
+                if (ran.charAt(i) == ran.charAt(j)) {
                     i--;
                     break;
                 }
             }
         }
+        System.out.println(ran);
         return ran.toString();
     }
 
-
     /*****************MAIN FUNCTION*********************/
-    private void guessNumber(){
+    private void guessNumber() {
         String str = input.getText();
 
         //Main part
-        if(!wrongInput(str)){
-            int a = 0, b = 0;
-
-            for (int i=0; i<4; i++){
-                for (int j=0; j<4; j++){
-                    if (str.charAt(i)==answer.charAt(j)){
-                        if (i==j){
-                            a++; break;
-                        }
-                        else{
-                            b++; break;
-                        }
+        int a = 0, b = 0;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (str.charAt(i) == answer.charAt(j)) {
+                    if (i == j) {
+                        a++;break;
+                    } else {
+                        b++;break;
                     }
                 }
             }
-
-            String result = a + "A" + b + "B";
-
-            table.getItems().add(new Record(str,result));
-
-            //Correct Answer
-            if (a == 4){
-                youWin();
-            }
-            else if(guessCount++ == 6){
-                youLose();
-            }
         }
-        else{
-            wrongInputDialog();
+        String result = a + "A" + b + "B";
+        table.getItems().add(new Record(str, result));
+
+        //You win
+        if (a == 4) {
+            youWin();
+        }
+        //You lose
+        else if (guessCount++ == 6) {
+            youLose();
         }
     }
 
 
     /*****GAME ENDED*****/
 
-    /**WIN**/
-    private void youWin(){
+    /**
+     * WIN
+     **/
+    private void youWin() {
         btnEnter.setVisible(false);
         btnNewGame.setVisible(true);
 
@@ -160,16 +184,16 @@ public class Controller {
         input.setDisable(true);
     }
 
-    /**LOSE**/
+    /**
+     * LOSE
+     **/
     private void youLose() {
-        Alert alert = showDialog(Alert.AlertType.INFORMATION,"您已經輸了","您的輸入超過7次，您已經輸了\n" +
-                "正確答案是"+answer);
-        alert.showAndWait();
+
+        showDialog("您已經輸了", "您的輸入超過7次，您已經輸了\n" +
+                "正確答案是" + answer);
 
         btnEnter.setVisible(false);
         btnNewGame.setVisible(true);
-
-        btnNewGame.requestFocus();
 
         gameEnded = true; //this one is for enter key disabled
         input.setDisable(true);
@@ -180,14 +204,15 @@ public class Controller {
         menuSlide(true);
         newGame();
     }
+
     public void keyNewGame(KeyEvent keyEvent) {
-        if(keyEvent.getCode()==KeyCode.ENTER && gameEnded){
+        if (keyEvent.getCode() == KeyCode.ENTER && gameEnded) {
             menuSlide(true);
             newGame();
         }
     }
 
-    private void newGame(){
+    private void newGame() {
         table.getItems().clear(); //Remove all data
 
         gameEnded = false;
@@ -206,20 +231,19 @@ public class Controller {
 
 
     /*****SLIDE MENU BAR EFFECT*****/
-    public void menuSlideOutAction(ActionEvent actionEvent){
+    public void menuSlideOutAction(ActionEvent actionEvent) {
         menuSlide(false);
     }
 
-    void menuSlide(boolean forClose){
+    private void menuSlide(boolean forClose) {
         TranslateTransition openMenu = new TranslateTransition(new Duration(200), menuBar);
         openMenu.setToX(0);
         TranslateTransition closeMenu = new TranslateTransition(new Duration(200), menuBar);
 
-        if(menuBar.getTranslateX()!=0 && !forClose){
+        if (menuBar.getTranslateX() != 0 && !forClose) {
             openMenu.play();
             menuBar.requestFocus();
-        }
-        else{
+        } else {
             closeMenu.setToX(-(menuBar.getWidth()));
             closeMenu.play();
         }
@@ -227,29 +251,28 @@ public class Controller {
 
     /***********MENU BAR***********/
     public void menuItemClicked(MouseEvent mouseEvent) {
-        if(menuItems.getSelectionModel().getSelectedItems().equals(FXCollections.observableArrayList("新遊戲"))){
+        if (menuItems.getSelectionModel().getSelectedItems().equals(FXCollections.observableArrayList("新遊戲"))) {
             newGame();
             menuSlide(false);
         }
 
         /***STYLE***/
-        else if(menuItems.getSelectionModel().getSelectedItems().equals(FXCollections.observableArrayList("更換樣式"))){
-            Alert alert = showDialog(Alert.AlertType.INFORMATION,"Sorry!","更換樣式尚未開放");
-            alert.showAndWait();
+        else if (menuItems.getSelectionModel().getSelectedItems().equals(FXCollections.observableArrayList("更換樣式"))) {
+            showDialog("Sorry", "更換樣式尚未開放");
         }
 
         /***HELP***/
-        else if(menuItems.getSelectionModel().getSelectedItems().equals(FXCollections.observableArrayList("玩法"))){
+        else if (menuItems.getSelectionModel().getSelectedItems().equals(FXCollections.observableArrayList("玩法"))) {
 
-            Alert alert = showDialog(Alert.AlertType.INFORMATION,"玩法","程式會亂數產生4個不重複的數字(1~9)，" +
-                    "使用者請輸入一組數字，程式會根據這個數字給出幾A幾B，" +
-                    "其中A前面的數字表示位置正確的數的個數，而B前的數字表示數字正確而位置不對的數的個數。\n" +
-                    "當輸入次數超過7次時，則代表您輸了。");
-            alert.showAndWait();
+            showDialog("玩法", "程式會亂數產生4個不重複的數字(1~9)，\n" +
+                            "使用者請輸入一組數字，程式會根據這個數字給出幾A幾B，\n" +
+                            "其中A前面的數字表示位置正確的數的個數，\n" +
+                            "而B前的數字表示數字正確而位置不對的數的個數。\n" +
+                            "當輸入次數超過7次時，則代表您輸了。");
         }
 
         /***ABOUT***/
-        else if(menuItems.getSelectionModel().getSelectedItems().equals(FXCollections.observableArrayList("關於"))){
+        else if (menuItems.getSelectionModel().getSelectedItems().equals(FXCollections.observableArrayList("關於"))) {
 
             FlowPane flowPane = new FlowPane();
             flowPane.getStyleClass().add("about");
@@ -257,7 +280,7 @@ public class Controller {
             Label author = new Label("Author  : Beneb Siny (Github : ");
             Hyperlink link = new Hyperlink("https://github.com/benebsiny");
             link.setOnAction(event -> {
-                if(Desktop.isDesktopSupported()){
+                if (Desktop.isDesktopSupported()) {
                     try {
                         Desktop.getDesktop().browse(new URI("https://github.com/benebsiny"));
                     } catch (IOException | URISyntaxException e1) {
@@ -267,25 +290,19 @@ public class Controller {
             });
 
             Label author1 = new Label(" )   ");
-            Label label = new Label("Version : 1.1.0\n\nCopyright © 2019 Beneb Siny. All rights reserved");
+            Label label = new Label("Version : 1.2.0\n\nCopyright © 2019 Beneb Siny. All rights reserved");
 
-            flowPane.getChildren().addAll(author,link,author1,label);
+            flowPane.getChildren().addAll(author, link, author1, label);
 
-            Alert alert = showDialog(Alert.AlertType.NONE,"關於","");
+            Alert alert = showAlert(Alert.AlertType.NONE,"關於","");
             alert.setHeaderText("猜數字遊戲");
             alert.getDialogPane().contentProperty().set(flowPane);
             alert.showAndWait();
         }
 
         /***EXIT***/
-        else if(menuItems.getSelectionModel().getSelectedItems().equals(FXCollections.observableArrayList("離開"))){
-            Alert alert = showDialog(Alert.AlertType.CONFIRMATION,"關閉程式","確定要關閉遊戲?");
-
-            Optional<ButtonType> result = alert.showAndWait();
-
-            if(result.get() == ButtonType.OK){ //ok button is pressed
-                Platform.exit();
-            }
+        else if (menuItems.getSelectionModel().getSelectedItems().equals(FXCollections.observableArrayList("離開"))) {
+            Platform.exit();
         }
     }
 
@@ -294,33 +311,42 @@ public class Controller {
     }
 
 
-    /*****EXCEPTION*****/
-    private void wrongInputDialog(){
-        Alert alert = showDialog(Alert.AlertType.ERROR,"輸入錯誤","請輸入4個不重複的數字(1~9)");
-        alert.showAndWait();
-    }
-
-    private boolean wrongInput(String str){
-
-        //If entered 4 words
-        if(!str.matches("[1-9]{4}")){
-            return true;
-        }
-
-        //If repeated
-        for(int i=0; i<3; i++){
-            for(int j=i+1; j<4; j++){
-                if(str.charAt(i)==str.charAt(j)){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-
     /*****Dialog*****/
-    Alert showDialog(Alert.AlertType alertType, String title, String content){
+    private void showDialog(String title, String body) {
+
+        //Styling
+        Text hd = new Text(title);
+        hd.setFill(Color.WHITE);
+        hd.setFont(new Font(18));
+
+        Text bd = new Text(body);
+        bd.setFill(Color.WHITE);
+        bd.setFont(new Font(13));
+
+        //Content
+        JFXDialogLayout content = new JFXDialogLayout();
+        content.setHeading(hd);
+        content.setBody(bd);
+
+        content.setStyle("-fx-background-color: #252526;"); //Dialog's background color
+
+        JFXDialog dialog = new JFXDialog(dialogPane, content, JFXDialog.DialogTransition.CENTER);
+
+        JFXButton btnDialogEnter = new JFXButton("確定");
+        btnDialogEnter.setOnAction(event -> {
+            Platform.runLater(()->btnNewGame.requestFocus()); //While lose the game, focused on the "New Game Button"
+            dialog.close();
+        });
+        btnDialogEnter.setStyle("-fx-text-fill: #d8d8d8;-fx-font-size: 14");
+
+        content.setActions(btnDialogEnter);
+
+        dialog.show();
+        dialog.setOnDialogOpened(event -> btnDialogEnter.requestFocus());
+
+    }
+
+    private Alert showAlert(Alert.AlertType alertType, String title, String content) {
         Alert alert = new Alert(alertType);
 
         //Styling
@@ -331,6 +357,7 @@ public class Controller {
         //Icon
         Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
         stage.getIcons().add(new Image("sample/GuessNumber.png"));
+
 
         //Close button
         alert.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);

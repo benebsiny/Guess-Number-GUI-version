@@ -3,6 +3,11 @@
 }
 
 /***********************BUTTON***********************/
+
+. button {
+    -fx-text-fill: #d8d8d8;
+}
+
 . button {
     -fx-padding:2 12 2 12;
     -fx-border-color: #e2e2e2;
@@ -18,25 +23,19 @@
 }
 
 . button:focused{
-    -fx-background-color : derive(#252526 , 15%);
+    -fx-background-color : derive(#252526 , 5%);
+    -fx-border-color: #EEF5B6;
 }
 
-. button:pressed{
-    -fx-background-color : #ffffff ;
-    -fx-text-fill : #252526 ;
-}
 
 /***********************TEXT FIELD***********************/
 . text-field {
-    -fx-border-color: #e2e2e2;
-    -fx-border-width: 2;
-    -fx-background-color: derive(#252526 ,5%);
     -fx-text-fill: #d8d8d8;
-    -fx-font-size: 14px;
     -fx-padding: 2 0;
 }
 
 /********************RESULT TABLE********************/
+
 . table-view{
     -fx-background-color: derive(#252526 ,20%);
     -fx-focus-traversable: false;
@@ -75,11 +74,6 @@
     -fx-font-weight: bold;
 }
 
-/*************WEB VIEW*************/
-. web-view{
-    -fx-background-color: derive(#252526 ,20%);
-    -fx-text-fill: #d8d8d8;
-}
 
 /***************ABOUT ALERT***************/
 .about .label{
@@ -89,30 +83,34 @@
 
 /**************SLIDE MENU BAR**************/
 
-.list-cell { /* <=== changed to even */
+.jfx-list-view {
     -fx-background-color: rgba(0, 0, 0, 0);
-    -fx-text-fill: white;
-    -fx-font-size: 16px;
 }
 
-.list-cell:filled:hover {
+.jfx-list-cell {
+    -fx-background-color: rgba(0, 0, 0, 0);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+.jfx-list-cell .jfx-rippler{
+    -jfx-rippler-fill:white;
+}
+
+.jfx-list-cell:filled:hover {
     -fx-background-color: rgba(0, 0, 0, 0.1);
 }
 
-.list-cell:filled:pressed {
-    -fx-background-color: rgba(0, 0, 0, 0.5);
-}
-
 .slideMenuBackground{
-    -fx-background-color: rgba(37%, 37%, 38%, 0.9);
+    -fx-background-color: rgba(49, 49, 52, 0.9);
 }
 
 .menu-header-label{
     -fx-text-fill: #d8d8d8;
     -fx-font-size: 22px;
-    //-fx-font-weight: bold;
     -fx-background-color: derive(#252526 ,20%);
 }
+
 .menu-button{
     -fx-background-color: transparent;
     -fx-border-width: 0;
