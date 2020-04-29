@@ -37,6 +37,6 @@ You can download [GuessNumber-ver1.2.0](https://github.com/benebsiny/guess-numbe
     3. The result can reveal at the left table
 
 ## Copyright Notice
-Guess Game Number © 2019 Beneb Siny
+Guess Game Number © 2019 benebsiny
 
 This program is free free software.
